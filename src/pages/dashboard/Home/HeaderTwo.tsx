@@ -1,130 +1,178 @@
 import axios from "axios";
-import React, { useEffect, useState, FormEvent} from "react";
+import React, { useEffect, useState, FormEvent } from "react";
 import { Button, Col, Container, Form, Row, DropdownButton, Dropdown, Card } from 'react-bootstrap'
 // import { Card, Dropdown, Container, Form, } from "react-bootstrap";
 const data = [
-    { heading: 'heading', paragraph:'paragraph', image:'image' },
+    { heading: 'heading', paragraph: 'paragraph', image: 'image' },
 ]
 export interface HeaderType {
-    heading: string;
-    idea: string;
-    title: string;
+    _id: string;
+    designation: string;
+    profileName: string;
+    slogan:string;
+    state:string;
+    image: string;
 }
 
 
 const HeaderTwo = () => {
 
     const [headerData, setHeaderData] = useState<HeaderType[]>([]);
+    const [designation, setDesignation] = useState<string>('');
+    const [profileName, setProfileName] = useState<string>('');
+    const [slogan, setSlogan] = useState<string>('');
+    const [state, setState] = useState<string>('');
     const [image, setImage] = useState<null | string>(null);
-    const [heading, setHeading] = useState<string>('');
-    const [paragraph, setParagraph] = useState<string>('');
 
 
-    // const getData = async () => {
-    //     try {
-    //         const response = await axios.get('http://localhost:5000/get/header');
-    //         const data = response.data;
-    //         console.log('data------', data)
-    //         setHeaderData(data)
-    //     }
-    //     catch (error) {
-    //         console.error('error', error)
-    //     }
-    // }
+    const getData = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/get/header');
+            const data = response.data;
+            console.log('data------', data)
+            setHeaderData(data)
+            console.log('headerData------', headerData)
+        }
+        catch (error) {
+            console.error('error', error)
+        }
+    }
+
+    // useEffect(()=>{
+    //      axios.get('http://localhost:5000/get/header')
+    //     .then((response)=>{
+    //         	console.log('data ---------  ', response.data)
+    //     })
+    //     .catch((err)=>{
+    //         alert(err)
+    //     })
+    // },[])
 
 
     useEffect(() => {
         fetch('http://localhost:5000/get/header')
-        .then(response =>response.json())
-        .then(res => console.log('res-----', res))// resolve this response/ promise
+            .then(response => response.json())
+            .then(res => setHeaderData(res))// resolve this response/ promise
     }, [])
 
+    console.log('headerData---', headerData)
 
-
-
-    const editBanner = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+    // ---------------------------------------------with fetch----------
+    const editBanner = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         alert('clicked');
-        const formData: FormData = new FormData();
-        formData.append('heading', heading);
-        formData.append('paragraph', paragraph);
-        if(image){
+
+        const formData = new FormData();
+        formData.append('designation', designation);
+        formData.append('profileName', profileName);
+        formData.append('slogan', slogan);
+        formData.append('state', state);
+        if (image) {
             formData.append('image', image);
         }
         console.log(formData);
-        try {
-        //   await api.updatePatchData(`/update/header/64c9126d1b2b99a36068ede3`, formData);
-        const response = await axios.post('http://localhost:5000/add/header',formData);
 
-          setHeading("");
-          setParagraph("");
-          setImage(null);
+        try {
+            const response = await fetch(`http://localhost:5000/update/header/64f327a71996af67d9c57391`, {
+                method: 'PATCH',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            // Assuming you want to parse the JSON response
+            const data = await response.json();
+
+            setDesignation('');
+            setProfileName('');
+            setSlogan('')
+            setState('')
+            setImage(null);
         } catch (error) {
-          console.error('Error during edit the banner:', error);
+            console.error('Error during edit the banner:', error);
         }
-      };
+    };
+
+    // -----------------------------------------with axios --------------------------------------
+
+    // const editBanner = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+    //     event.preventDefault();
+    //     alert('clicked');
+    //     const formData: FormData = new FormData();
+    //     formData.append('heading', heading);
+    //     formData.append('paragraph', paragraph);
+    //     if(image){
+    //         formData.append('image', image);
+    //     }
+    //     console.log(formData);
+    //     try {
+    //     //   await api.updatePatchData(`/update/header/64c9126d1b2b99a36068ede3`, formData);
+    //     const response = await axios.post('http://localhost:5000/add/header',formData);
+
+    //       setHeading("");
+    //       setParagraph("");
+    //       setImage(null);
+    //     } catch (error) {
+    //       console.error('Error during edit the banner:', error);
+    //     }
+    //   };
 
 
 
     return (
         <>
-            <Card className="bg-primary">
-                <Card.Body>
-                    <h6 className="header-title mb-3">Hello</h6>
-                    {(data || []).map((item, index) => {
-                        return (
-                            <div key={index} className="d-flex mt-1 border-top pt-2">
-                                <div className="flex-grow-1">
+            <Container className='pt-1 shadow-lg mt-1 p-1 border border-2 border-light rounded d-flex' >
+                {/* <Row> */}
+                <Col md={6} className='container signup__form--container align-self-centerd-flex shadow-lg p-3 border border-2 border-muted mb-5 bg-white rounded d-flex accordion' id="accordionExample">
+                    {/* onSubmit={editBanner} */}
+                    <Form style={{ width: "100%" }} onSubmit={editBanner}>
 
-                                    <h5 className="mt-1 mb-0 fs-15">{item.heading}</h5>
-                                    <h5 className="mt-1 mb-0 fs-15">{item.paragraph}</h5>
-                                    <h5 className="mt-1 mb-0 fs-15">{item.image}</h5>
+                        <h1>Header</h1>
 
-                                    {/* <button onClick={() => getData()}>get data</button> */}
-                                </div>
-                            </div>
-                        )
-                    })}
+                        {(headerData || []).map((item, i) => (
+                            <>
+                                <Form.Group>
+                                    <Form.Label className='d-flex  pt-2justify-content-start font-weight-bold'><h5>Designation</h5></Form.Label>
+                                    <Form.Control className="accordion-item" type='text' placeholder={item.designation} value={designation} onChange={(e) => setDesignation(e.target.value)} />
+                                </Form.Group>
 
-                    <Container className='pt-1 shadow-lg mt-1 p-1 border border-2 border-light rounded d-flex' >
-                        {/* <Row> */}
-                        <Col md={6} className='container signup__form--container align-self-centerd-flex shadow-lg p-3 border border-2 border-muted mb-5 bg-white rounded d-flex accordion' id="accordionExample">
-                            {/* onSubmit={editBanner} */}
-                            <Form style={{ width: "100%" }} onSubmit={editBanner}>
-                                <h1>Edit About us</h1>
+                                <Form.Group>
+                                    <Form.Label className='d-flex  pt-2justify-content-start font-weight-bold'><h5>Profile Name</h5></Form.Label>
+                                    <Form.Control type='text' placeholder={item.profileName} value={profileName} onChange={(e) => setProfileName(e.target.value)} />
+                                </Form.Group>
 
-                                {(data || []).map((item, i) => (
-                                    <>
-                                        <Form.Group>
-                                            <Form.Label className='d-flex  pt-2justify-content-start font-weight-bold'><h5>Heading</h5></Form.Label>
-                                            <Form.Control className="accordion-item" type='text' placeholder={item.heading} value={heading} onChange={(e)=>setHeading(e.target.value)}/>
-                                        </Form.Group>
+                                <Form.Group>
+                                    <Form.Label className='d-flex  pt-2justify-content-start font-weight-bold'><h5>Slogan</h5></Form.Label>
+                                    <Form.Control type='text' placeholder={item.slogan} value={slogan} onChange={(e) => setSlogan(e.target.value)} />
+                                </Form.Group>
 
-                                        <Form.Group>
-                                            <Form.Label className='d-flex  pt-2justify-content-start font-weight-bold'><h5>Paragraph</h5></Form.Label>
-                                            <Form.Control type='text' placeholder={item.paragraph} value={paragraph} onChange={(e)=>setParagraph(e.target.value)} />{/* onChange={handleImageChange} */}
-                                        </Form.Group>
-
-                                        <Form.Group>
-                                            <Form.Label className='d-flex pt-1 justify-content-start'><h5>Image</h5></Form.Label>
-                                            {/* onChange={handleImageChange} */}
-                                            <Form.Control type="file" id="image" name="image" accept="image/*"  />
-                                        </Form.Group>
+                                <Form.Group>
+                                    <Form.Label className='d-flex  pt-2justify-content-start font-weight-bold'><h5>State</h5></Form.Label>
+                                    <Form.Control type='text' placeholder={item.state} value={state} onChange={(e) => setState(e.target.value)} />
+                                </Form.Group>
 
 
-                                        <Form.Group className='pt-5 pb-5'>
-                                            <Button type='submit'>Edit Banner</Button>
-                                        </Form.Group>
-                                    </>
-                                ))}
-                            </Form>
-                            {/* <Button type='submit' onClick={handleFetchData}>handle fetch</Button> */}
 
-                        </Col>
+                                <Form.Group>
+                                    <Form.Label className='d-flex pt-1 justify-content-start'><h5>Image</h5></Form.Label>
+                                    {/* onChange={handleImageChange} */}
+                                    <Form.Control type="file" id="image" name="image" accept="image/*" />
+                                </Form.Group>
 
-                    </Container>
-                </Card.Body>
-            </Card>
+
+                                <Form.Group className='pt-5 pb-5'>
+                                    <Button type='submit'>Edit Banner</Button>
+                                </Form.Group>
+                            </>
+                        ))}
+                    </Form>
+                    {/* <Button type='submit' onClick={handleFetchData}>handle fetch</Button> */}
+
+                </Col>
+
+            </Container>
+
 
 
 
